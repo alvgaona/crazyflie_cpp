@@ -49,6 +49,14 @@ std::vector<std::string> Crazyflie::scan(
 std::string Crazyflie::broadcastUriFromUnicastUri(
   const std::string& link_uri)
 {
+  // simulator: "udp://host:port" -> "udpbroadcast://host" (sent to every udp:// Crazyflie on that host)
+  const std::regex udp_regex("udp:\\/\\/([\\w.\\-]+):\\d+");
+  std::smatch udp_match;
+  if (std::regex_match(link_uri, udp_match, udp_regex))
+  {
+    return "udpbroadcast://" + udp_match[1].str();
+  }
+
   const std::regex uri_regex("radio:\\/\\/(\\d+|\\*)\\/(\\d+)\\/(250K|1M|2M)\\/([a-fA-F0-9]+)");
   std::smatch match;
   if (!std::regex_match(link_uri, match, uri_regex))

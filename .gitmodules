@@ -1,3 +1,4 @@
 [submodule "crazyflie-link-cpp"]
 	path = crazyflie-link-cpp
-	url = https://github.com/bitcraze/crazyflie-link-cpp.git
+	url = https://github.com/alvgaona/crazyflie-link-cpp.git
+	branch = dev-crazyswarm2

@@ -530,7 +530,12 @@ public:
 
   ~LogBlock()
   {
-    stop();
+    // a destructor must not throw: stop() processes incoming packets, whose callbacks can fail
+    // during shutdown (e.g. publishing after ROS shut down), which would std::terminate
+    try {
+      stop();
+    } catch (const std::exception&) {
+    }
     m_cf->unregisterLogBlock(m_id);
   }
 
@@ -638,7 +643,12 @@ public:
 
   ~LogBlockGeneric()
   {
-    stop();
+    // a destructor must not throw: stop() processes incoming packets, whose callbacks can fail
+    // during shutdown (e.g. publishing after ROS shut down), which would std::terminate
+    try {
+      stop();
+    } catch (const std::exception&) {
+    }
     m_cf->unregisterLogBlock(m_id);
   }
 
