@@ -530,10 +530,11 @@ public:
 
   ~LogBlock()
   {
-    // a destructor must not throw: stop() processes incoming packets, whose callbacks can fail
-    // during shutdown (e.g. publishing after ROS shut down), which would std::terminate
+    // send stop without waiting for the reply: at shutdown the drone or simulator may already be
+    // gone (waiting would block), and the next connect resets all log blocks anyway
     try {
-      stop();
+      crtpLogStopRequest request(m_id);
+      m_cf->m_connection.send(request);
     } catch (const std::exception&) {
     }
     m_cf->unregisterLogBlock(m_id);
@@ -643,10 +644,11 @@ public:
 
   ~LogBlockGeneric()
   {
-    // a destructor must not throw: stop() processes incoming packets, whose callbacks can fail
-    // during shutdown (e.g. publishing after ROS shut down), which would std::terminate
+    // send stop without waiting for the reply: at shutdown the drone or simulator may already be
+    // gone (waiting would block), and the next connect resets all log blocks anyway
     try {
-      stop();
+      crtpLogStopRequest request(m_id);
+      m_cf->m_connection.send(request);
     } catch (const std::exception&) {
     }
     m_cf->unregisterLogBlock(m_id);

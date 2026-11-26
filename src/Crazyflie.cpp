@@ -984,13 +984,19 @@ void Crazyflie::setParam(uint16_t id, const ParamValue &value)
 bitcraze::crazyflieLinkCpp::Packet Crazyflie::waitForResponse(
     std::function<bool(const bitcraze::crazyflieLinkCpp::Packet &)> condition)
 {
-  while (true) {
-    auto p = m_connection.recv(0);
+  // UDP links (simulators) have no link-layer retries, so a lost packet would otherwise block forever.
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+  while (std::chrono::steady_clock::now() < deadline) {
+    auto p = m_connection.recv(100);
+    if (!p.valid()) {
+      continue;
+    }
     processPacket(p);
     if (condition(p)) {
       return p;
     }
   }
+  throw std::runtime_error("Timeout waiting for response from " + m_connection.uri());
 }
 
 void Crazyflie::processPacket(const bitcraze::crazyflieLinkCpp::Packet& p)
